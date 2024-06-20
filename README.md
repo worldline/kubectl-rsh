@@ -1,5 +1,9 @@
 # kubectl-rsh
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/worldline/kubectl-rsh/main.yml)
+![GitHub Release](https://img.shields.io/github/v/release/worldline/kubectl-rsh)
+![GitHub License](https://img.shields.io/github/license/worldline/kubectl-rsh)
+
 A [kubectl](https://github.com/kubernetes/kubectl) extension to open a shell session to a container in a pod, akin to [`oc rsh`](https://github.com/openshift/oc).
 
 ## Installation
