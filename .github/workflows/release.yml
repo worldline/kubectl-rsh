@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
   bin_name: kubectl-rsh
@@ -50,7 +50,7 @@ jobs:
       - name: Create Archive and SHASUM
         run: |
           mv ./target/${{ matrix.target }}/release/${{ env.bin_name }} .
-          tar -czf ./${{ env.archive }} ${{ env.bin_name }}
+          tar -czf ./${{ env.archive }} ${{ env.bin_name }} LICENSE
           sha256sum ${{ env.archive }} > ${{ env.archive }}.sha256
 
       - name: Upload Artifact
