@@ -1,0 +1,21 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: rsh
+spec:
+  version: "v0.1.1"
+  homepage: https://github.com/worldline/kubectl-rsh
+  shortDescription: "Open a shell session to a container in a pod"
+  description: |
+    Opens a shell session to a container in a pod, just like "oc rsh"
+  platforms:
+  - uri: https://github.com/worldline/kubectl-rsh/releases/download/0.1.1/kubectl-rsh_0.1.1_x86_64-unknown-linux-gnu.tar.gz
+    sha256: 70ad0ee88f9d1cc0665340a7abfb42ef49d0b209e7666ec0eb3aa70f145e9ba7
+    bin: kubectl-rsh
+    files:
+    - from: "*"
+      to: "."
+    selector:
+      matchLabels:
+        os: linux
+        arch: amd64

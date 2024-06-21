@@ -8,6 +8,14 @@ A [kubectl](https://github.com/kubernetes/kubectl) extension to open a shell ses
 
 ## Installation
 
+### With Krew
+
+```
+kubectl krew install --manifest-url https://raw.githubusercontent.com/worldline/kubectl-rsh/main/krew-manifest.yaml
+```
+
+### Manually
+
 Get the appropriate binary from the latest release, and put it somewhere in your `PATH` so that `kubectl` can find it. More information on the [Extend kubectl with plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) page.
 
 ## Usage
@@ -44,7 +52,7 @@ All contributions are welcome, open an issue if you face any problem; open a PR 
 
 ## TODO List
 
-- Integration with Krew
+- Generate Krew manifest along with the release
 - Autocomplete, if possible (pod names, and integration with bash and zsh)
 - Windows & Mac support
 
