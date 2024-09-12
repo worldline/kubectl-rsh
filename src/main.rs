@@ -6,7 +6,6 @@ use std::{
     time::Duration,
 };
 
-use clap::Parser;
 use futures_channel::mpsc::Sender;
 use http::StatusCode;
 use k8s_openapi::api::core::v1::Pod;
@@ -42,20 +41,96 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Ok(client) => client,
     };
 
-    debug!(
-        "Opening sh connection to container in pod {}...",
-        args.pod_name
-    );
-
-    let attach_params = create_attach_params(args.container_name);
-    let command = create_command(&args.shell_path);
-
     let api = match args.namespace {
         Some(namespace) => Api::<Pod>::namespaced(client, &namespace),
         _ => Api::<Pod>::default_namespaced(client),
     };
 
-    let attached_process = match api.exec(&args.pod_name, command, &attach_params).await {
+    match args.command {
+        Some(command) => {
+            run_command_in_container(api, args.pod, args.container, args.shell, command).await
+        }
+        None => start_interractive_session(api, args.pod, args.container, args.shell).await,
+    }
+}
+
+async fn run_command_in_container(
+    api: Api<Pod>,
+    pod: String,
+    container: Option<String>,
+    shell_path: String,
+    command: Vec<String>,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        "Executing command '{:?} in container '{}' in pod '{}' using shell '{}'",
+        command,
+        container.as_ref().map_or("[default]", |i| i.as_str()),
+        pod,
+        shell_path,
+    );
+
+    let attach_params = create_attach_params(AttachParams::default(), container)
+        .stdout(true)
+        .stderr(true);
+
+    match api.exec(&pod, command, &attach_params).await {
+        Err(kube::Error::UpgradeConnection(UpgradeConnectionError::ProtocolSwitch(
+            StatusCode::NOT_FOUND,
+        ))) => {
+            eprintln!("Not found - check the pod's name and make sure it exists");
+            exit(-1);
+        }
+        Err(kube::Error::UpgradeConnection(UpgradeConnectionError::ProtocolSwitch(
+            StatusCode::BAD_REQUEST,
+        ))) => {
+            eprintln!(
+                "Bad request - check the container's name and make sure it exists inside the pod"
+            );
+            exit(-1);
+        }
+        Err(e) => return Err(e.into()),
+        Ok(attached_process) => print_output_to_local_terminal(attached_process).await,
+    }
+}
+
+async fn print_output_to_local_terminal(
+    mut attached_process: AttachedProcess,
+) -> Result<(), Box<dyn Error>> {
+    let mut stdout = io::stdout();
+    let mut remote_stdout = attached_process
+        .stdout()
+        .expect("cannot obtain container's stdout");
+    let mut stderr = io::stderr();
+    let mut remote_stderr = attached_process
+        .stderr()
+        .expect("cannot obtain container's stderr");
+
+    let result = tokio::select! {
+        res = io::copy(&mut remote_stdout, &mut stdout) => res.map_or_else(|e| Err(Into::<Box<dyn Error>>::into(e)), |_| Ok(())),
+        res = io::copy(&mut remote_stderr, &mut stderr) => res.map_or_else(|e| Err(Into::<Box<dyn Error>>::into(e)), |_| Ok(())),
+        res = attached_process.join() => res.map_or_else(|e| Err(Into::<Box<dyn Error>>::into(e)), |_| Ok(())),
+    };
+
+    result
+}
+
+async fn start_interractive_session(
+    api: Api<Pod>,
+    pod: String,
+    container: Option<String>,
+    shell: String,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        "Starting remote shell '{}' on container '{}' in pod '{}' with shell",
+        shell,
+        container.as_ref().map_or("[default]", |i| i.as_str()),
+        pod
+    );
+
+    let attach_params = create_attach_params(AttachParams::interactive_tty(), container);
+    let command = create_command(&shell);
+
+    let attached_process = match api.exec(&pod, command, &attach_params).await {
         Err(kube::Error::UpgradeConnection(UpgradeConnectionError::ProtocolSwitch(
             StatusCode::NOT_FOUND,
         ))) => {
@@ -156,9 +231,10 @@ async fn get_client() -> Result<Client, kube::Error> {
     }
 }
 
-fn create_attach_params(container: Option<String>) -> AttachParams {
-    let mut attach_params = AttachParams::interactive_tty();
-
+fn create_attach_params(
+    mut attach_params: AttachParams,
+    container: Option<String>,
+) -> AttachParams {
     if let Some(container_name) = container {
         attach_params = attach_params.container(container_name);
     }

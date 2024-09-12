@@ -23,17 +23,18 @@ Get the appropriate binary from the latest release, and put it somewhere in your
 Once installed, it can be invoked using `kubectl rsh`:
 
 ```
-Usage: kubectl-rsh [OPTIONS] <POD_NAME> [CONTAINER_NAME]
+Usage: kubectl-rsh [OPTIONS] <pod_name> [COMMAND]...
 
 Arguments:
-  <POD_NAME>        Pod name
-  [CONTAINER_NAME]  Container name; defaults to first container in the pod
+  <pod_name>    Pod name
+  [COMMAND]...  Command to run on the container, in non interractive mode
 
 Options:
-  -s, --shell <shell>          Path to the shell [default: /bin/sh]
-  -n, --namespace <namespace>  Namespace; defaults to namespace in current context
-  -h, --help                   Print help
-  -V, --version                Print version
+  -c, --container <CONTAINER_NAME>  Container name; defaults to first container in the pod
+  -s, --shell <SHELL_PATH>          Path to the shell [default: /bin/sh]
+  -n, --namespace <NAMESPACE>       Namespace; defaults to namespace in current context
+  -h, --help                        Print help
+  -V, --version                     Print version
 ```
 
 ## Prerequisites
