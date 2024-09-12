@@ -4,7 +4,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/worldline/kubectl-rsh)
 ![GitHub License](https://img.shields.io/github/license/worldline/kubectl-rsh)
 
-A [kubectl](https://github.com/kubernetes/kubectl) extension to open a shell session to a container in a pod, akin to [`oc rsh`](https://github.com/openshift/oc).
+A [kubectl](https://github.com/kubernetes/kubectl) extension to execute a command or open a shell session in a container in a pod, akin to [`oc rsh`](https://github.com/openshift/oc).
 
 ## Installation
 
