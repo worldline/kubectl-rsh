@@ -3,14 +3,14 @@ kind: Plugin
 metadata:
   name: rsh
 spec:
-  version: "v0.1.1"
+  version: "v0.2.0"
   homepage: https://github.com/worldline/kubectl-rsh
-  shortDescription: "Open a shell session to a container in a pod"
+  shortDescription: "Execute a command or open a shell session to a container in a pod"
   description: |
-    Opens a shell session to a container in a pod, just like "oc rsh"
+    Execute a command or opens a shell session to a container in a pod, just like "oc rsh"
   platforms:
-  - uri: https://github.com/worldline/kubectl-rsh/releases/download/0.1.1/kubectl-rsh_0.1.1_x86_64-unknown-linux-gnu.tar.gz
-    sha256: 70ad0ee88f9d1cc0665340a7abfb42ef49d0b209e7666ec0eb3aa70f145e9ba7
+  - uri: https://github.com/worldline/kubectl-rsh/releases/download/0.2.0/kubectl-rsh_0.2.0_x86_64-unknown-linux-gnu.tar.gz
+    sha256: 14c8cb362100d62b6df813e3a67cb5e930bf0e5fa039616f97225691c99cf4ab
     bin: kubectl-rsh
     files:
     - from: "*"
